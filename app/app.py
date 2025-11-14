@@ -15,6 +15,26 @@ sys.path.append(os.path.dirname(__file__))
 import utils  # using utils.load_model, utils.preprocess_input, utils.predict_price
 
 # ==============================
+# Load Custom CSS (from assets/style.css)
+# ==============================
+def load_css():
+    """Load external CSS file for sidebar and layout styling."""
+    css_path = os.path.join(os.path.dirname(__file__), "assets/style.css")
+    if os.path.exists(css_path):
+        with open(css_path, "r", encoding="utf-8") as css_file:
+            st.markdown(f"<style>{css_file.read()}</style>", unsafe_allow_html=True)
+
+load_css()
+
+# ==============================
+# Sidebar Logo
+# ==============================
+logo_path = os.path.join(os.path.dirname(__file__), "assets/logo.png")
+if os.path.exists(logo_path):
+    # Show logo at the top of the sidebar
+    st.sidebar.image(logo_path, use_container_width=True)
+
+# ==============================
 # Page Configuration
 # ==============================
 st.set_page_config(
@@ -45,7 +65,7 @@ district = st.sidebar.selectbox("Distrito", ["Centro", "Chamartín", "Salamanca"
 # ==============================
 # Google Drive model ID and paths
 # ==============================
-MODEL_ID = "1Nn59vaxw_arH-KBgN53wbnH9R68L9SSu"  # your Drive file ID
+MODEL_ID = "1Nn59vaxw_arH-KBgN53wbnH9R68L9SSu"
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "model_pipeline.pkl")
 DOWNLOAD_URL = f"https://drive.google.com/uc?id={MODEL_ID}"
 
@@ -53,6 +73,7 @@ DOWNLOAD_URL = f"https://drive.google.com/uc?id={MODEL_ID}"
 # Function to download model if missing
 # ==============================
 def download_model(path, url):
+    """Download model file only if not already found locally."""
     if not os.path.exists(path):
         st.info("Descargando el modelo desde Google Drive…")
         gdown.download(url, path, quiet=False)
@@ -63,6 +84,7 @@ def download_model(path, url):
 # ==============================
 @st.cache_resource
 def get_model():
+    """Load the trained ML model from local file or download it."""
     download_model(MODEL_PATH, DOWNLOAD_URL)
     pipeline = utils.load_model(MODEL_PATH)
     if pipeline is None:

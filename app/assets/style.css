@@ -1,13 +1,29 @@
 /* Sidebar background */
 section[data-testid="stSidebar"] {
     background-color: #cce6ff !important; /* light blue */
+    padding-top: 0 !important;
 }
 
-/* Center the logo */
+/* Center and size the logo */
 section[data-testid="stSidebar"] img {
     display: block;
     margin-left: auto;
     margin-right: auto;
-    padding-top: 10px;
-    padding-bottom: 20px;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    width: 75% !important; /* adjust as needed */
+}
+
+/* Reduce spacing before headers inside the sidebar */
+section[data-testid="stSidebar"] h2, 
+section[data-testid="stSidebar"] h3,
+section[data-testid="stSidebar"] h4 {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* Reduce the spacing around the first widget */
+section[data-testid="stSidebar"] .stNumberInput {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
 }

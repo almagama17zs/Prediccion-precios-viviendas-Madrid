@@ -25,34 +25,22 @@ st.set_page_config(
 )
 
 # ==============================
-# Sidebar Customization
+# Load Custom CSS
 # ==============================
-logo_path = "assets/logo.png"  # Ruta relativa al logo en la carpeta assets
+def load_css():
+    css_path = os.path.join(os.path.dirname(__file__), "assets/style.css")
+    if os.path.exists(css_path):
+        with open(css_path, "r", encoding="utf-8") as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-st.markdown(
-    f"""
-    <style>
-    /* Cambiar color de fondo del sidebar */
-    .css-1d391kg {{
-        background-color: #cce6ff;  /* Azul clarito */
-        padding-top: 2rem;
-    }}
+load_css()
 
-    /* Logo en la parte superior del sidebar */
-    .css-1d391kg:before {{
-        content: "";
-        display: block;
-        margin: 0 auto 10px;
-        background-image: url({logo_path});
-        background-size: contain;
-        background-repeat: no-repeat;
-        width: 150px;   /* Ajusta tamaño */
-        height: 80px;   /* Ajusta tamaño */
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+# ==============================
+# Sidebar Logo
+# ==============================
+logo_path = os.path.join(os.path.dirname(__file__), "assets/logo.png")
+if os.path.exists(logo_path):
+    st.sidebar.image(logo_path, use_container_width=True)
 
 # ==============================
 # Title and Description
@@ -75,7 +63,7 @@ district = st.sidebar.selectbox("Distrito", ["Centro", "Chamartín", "Salamanca"
 # ==============================
 # Google Drive model ID and paths
 # ==============================
-MODEL_ID = "1Nn59vaxw_arH-KBgN53wbnH9R68L9SSu"  # direct file ID from Drive
+MODEL_ID = "1Nn59vaxw_arH-KBgN53wbnH9R68L9SSu"  # your Drive file ID
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "model_pipeline.pkl")
 DOWNLOAD_URL = f"https://drive.google.com/uc?id={MODEL_ID}"
 
@@ -84,8 +72,7 @@ DOWNLOAD_URL = f"https://drive.google.com/uc?id={MODEL_ID}"
 # ==============================
 def download_model(path, url):
     if not os.path.exists(path):
-        st.info("Descargando el modelo desde Google Drive...")
-        # Download using gdown
+        st.info("Descargando el modelo desde Google Drive…")
         gdown.download(url, path, quiet=False)
         st.success("Modelo descargado correctamente.")
 
@@ -94,9 +81,7 @@ def download_model(path, url):
 # ==============================
 @st.cache_resource
 def get_model():
-    # Download model if not exists
     download_model(MODEL_PATH, DOWNLOAD_URL)
-    # Load the model
     pipeline = utils.load_model(MODEL_PATH)
     if pipeline is None:
         st.error("❌ No se pudo cargar el modelo.")

@@ -2,7 +2,7 @@ import os
 import sys
 import streamlit as st
 import pandas as pd
-import gdown  # to download the model from Google Drive
+import gdown
 
 # ==============================
 # Ensure app folder is in sys.path
@@ -31,7 +31,6 @@ load_css()
 # ==============================
 logo_path = os.path.join(os.path.dirname(__file__), "assets/logo.png")
 if os.path.exists(logo_path):
-    # Show logo at the top of the sidebar
     st.sidebar.image(logo_path, use_container_width=True)
 
 # ==============================
@@ -63,21 +62,19 @@ bathrooms = st.sidebar.number_input("Número de baños", min_value=1, max_value=
 district = st.sidebar.selectbox("Distrito", ["Centro", "Chamartín", "Salamanca", "Retiro", "Latina"])
 
 # ==============================
-# Google Drive model ID and paths
+# Google Drive model info
 # ==============================
 MODEL_ID = "1Nn59vaxw_arH-KBgN53wbnH9R68L9SSu"
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "model_pipeline.pkl")
 DOWNLOAD_URL = f"https://drive.google.com/uc?id={MODEL_ID}"
 
 # ==============================
-# Function to download model if missing
+# Silent model download
 # ==============================
 def download_model(path, url):
-    """Download model file only if not already found locally."""
+    """Download model file without showing messages to the user."""
     if not os.path.exists(path):
-        st.info("Descargando el modelo desde Google Drive…")
-        gdown.download(url, path, quiet=False)
-        st.success("Modelo descargado correctamente.")
+        gdown.download(url, path, quiet=True)  # silent mode
 
 # ==============================
 # Load Model
@@ -105,7 +102,6 @@ if st.button("Predecir precio"):
     }
     input_df = pd.DataFrame([input_data])
 
-    # Reorder columns according to model expectations
     if hasattr(model, "feature_names_in_"):
         expected_cols = model.feature_names_in_.tolist()
         input_df = input_df[expected_cols]
@@ -121,7 +117,7 @@ if st.button("Predecir precio"):
         st.error(f"❌ Error durante la predicción: {e}")
 
 # ==============================
-# Optional: Show Feature Info
+# Extra Info
 # ==============================
 with st.expander("ℹ️ Información sobre las características"):
     st.write("""

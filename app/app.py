@@ -43,10 +43,10 @@ bathrooms = st.sidebar.number_input("Número de baños", min_value=1, max_value=
 district = st.sidebar.selectbox("Distrito", ["Centro", "Chamartín", "Salamanca", "Retiro", "Latina"])
 
 # ==============================
-# Google Drive model ID
+# Google Drive model ID and paths
 # ==============================
-MODEL_ID = "1Nn59vaxw_arH-KBgN53wbnH9R68L9SSu"  # Replace with actual file ID from your Drive link
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "app/model_pipeline.pkl")
+MODEL_ID = "1Nn59vaxw_arH-KBgN53wbnH9R68L9SSu"  # direct file ID from Drive
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "model_pipeline.pkl")
 DOWNLOAD_URL = f"https://drive.google.com/uc?id={MODEL_ID}"
 
 # ==============================
@@ -55,6 +55,7 @@ DOWNLOAD_URL = f"https://drive.google.com/uc?id={MODEL_ID}"
 def download_model(path, url):
     if not os.path.exists(path):
         st.info("Descargando el modelo desde Google Drive...")
+        # Download using gdown
         gdown.download(url, path, quiet=False)
         st.success("Modelo descargado correctamente.")
 
@@ -63,7 +64,9 @@ def download_model(path, url):
 # ==============================
 @st.cache_resource
 def get_model():
+    # Download model if not exists
     download_model(MODEL_PATH, DOWNLOAD_URL)
+    # Load the model
     pipeline = utils.load_model(MODEL_PATH)
     if pipeline is None:
         st.error("❌ No se pudo cargar el modelo.")

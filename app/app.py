@@ -25,6 +25,36 @@ st.set_page_config(
 )
 
 # ==============================
+# Sidebar Customization
+# ==============================
+logo_path = "assets/logo.png"  # Ruta relativa al logo en la carpeta assets
+
+st.markdown(
+    f"""
+    <style>
+    /* Cambiar color de fondo del sidebar */
+    .css-1d391kg {{
+        background-color: #cce6ff;  /* Azul clarito */
+        padding-top: 2rem;
+    }}
+
+    /* Logo en la parte superior del sidebar */
+    .css-1d391kg:before {{
+        content: "";
+        display: block;
+        margin: 0 auto 10px;
+        background-image: url({logo_path});
+        background-size: contain;
+        background-repeat: no-repeat;
+        width: 150px;   /* Ajusta tamaño */
+        height: 80px;   /* Ajusta tamaño */
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# ==============================
 # Title and Description
 # ==============================
 st.title("🏠 Predicción de Precios de Viviendas - Madrid")

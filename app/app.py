@@ -2,7 +2,7 @@ import os
 import sys
 import streamlit as st
 import pandas as pd
-import requests
+import gdown  # to download the model from Google Drive
 
 # ==============================
 # Ensure app folder is in sys.path
@@ -29,23 +29,24 @@ st.set_page_config(
 # ==============================
 st.title("🏠 Predicción de Precios de Viviendas - Madrid")
 st.markdown("""
-Predict property prices in Madrid using a trained machine learning model.  
-Enter the property features to get an estimated price.
+Predice el precio de viviendas en Madrid utilizando un modelo de machine learning entrenado.  
+Introduce las características de la propiedad para obtener un precio estimado.
 """)
 
 # ==============================
 # Sidebar Inputs
 # ==============================
-st.sidebar.header("Property Features")
-rooms = st.sidebar.number_input("Number of rooms", min_value=1, max_value=10, value=3)
-size = st.sidebar.number_input("Size (m²)", min_value=10, max_value=1000, value=70)
-bathrooms = st.sidebar.number_input("Number of bathrooms", min_value=1, max_value=5, value=1)
-district = st.sidebar.selectbox("District", ["Centro", "Chamartín", "Salamanca", "Retiro", "Latina"])
+st.sidebar.header("Características de la Propiedad")
+rooms = st.sidebar.number_input("Número de habitaciones", min_value=1, max_value=10, value=3)
+size = st.sidebar.number_input("Tamaño (m²)", min_value=10, max_value=1000, value=70)
+bathrooms = st.sidebar.number_input("Número de baños", min_value=1, max_value=5, value=1)
+district = st.sidebar.selectbox("Distrito", ["Centro", "Chamartín", "Salamanca", "Retiro", "Latina"])
 
 # ==============================
 # Google Drive model ID
 # ==============================
-MODEL_ID = "1P1W_vC38Jl8Gdrtv-8rl9WR8_PjBGuve"  # Replace with actual file ID
+MODEL_ID = "1Nn59vaxw_arH-KBgN53wbnH9R68L9SSu"  # Replace with actual file ID from your Drive link
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "app/model_pipeline.pkl")
 DOWNLOAD_URL = f"https://drive.google.com/uc?id={MODEL_ID}"
 
 # ==============================
@@ -53,25 +54,19 @@ DOWNLOAD_URL = f"https://drive.google.com/uc?id={MODEL_ID}"
 # ==============================
 def download_model(path, url):
     if not os.path.exists(path):
-        st.info("Downloading model from Google Drive...")
-        r = requests.get(url, allow_redirects=True)
-        with open(path, "wb") as f:
-            f.write(r.content)
-        st.success("Model downloaded successfully.")
+        st.info("Descargando el modelo desde Google Drive...")
+        gdown.download(url, path, quiet=False)
+        st.success("Modelo descargado correctamente.")
 
 # ==============================
 # Load Model
 # ==============================
 @st.cache_resource
 def get_model():
-    pipeline_path = os.path.join(os.path.dirname(__file__), "model_pipeline.pkl")
-    
-    # Download if not exists
-    download_model(pipeline_path, DOWNLOAD_URL)
-    
-    pipeline = utils.load_model(pipeline_path)
+    download_model(MODEL_PATH, DOWNLOAD_URL)
+    pipeline = utils.load_model(MODEL_PATH)
     if pipeline is None:
-        st.error("❌ Could not load the model.")
+        st.error("❌ No se pudo cargar el modelo.")
     return pipeline
 
 model = get_model()
@@ -79,7 +74,7 @@ model = get_model()
 # ==============================
 # Make Prediction
 # ==============================
-if st.button("Predict Price"):
+if st.button("Predecir precio"):
     input_data = {
         "habitaciones": rooms,
         "metros": size,
@@ -99,17 +94,17 @@ if st.button("Predict Price"):
         if isinstance(predicted_price, str):
             st.error(predicted_price)
         else:
-            st.success(f"🏷️ Estimated price: €{predicted_price:,.2f}")
+            st.success(f"🏷️ Precio estimado: €{predicted_price:,.2f}")
     except Exception as e:
-        st.error(f"❌ Error during prediction: {e}")
+        st.error(f"❌ Error durante la predicción: {e}")
 
 # ==============================
 # Optional: Show Feature Info
 # ==============================
-with st.expander("ℹ️ Property Features Info"):
+with st.expander("ℹ️ Información sobre las características"):
     st.write("""
-    - **Number of rooms**: Total rooms in the property  
-    - **Size (m²)**: Total surface in square meters  
-    - **Number of bathrooms**: Total bathrooms  
-    - **District**: Area of Madrid
+    - **Número de habitaciones**: Total de habitaciones en la propiedad  
+    - **Tamaño (m²)**: Superficie total en metros cuadrados  
+    - **Número de baños**: Total de baños  
+    - **Distrito**: Zona de Madrid
     """)
